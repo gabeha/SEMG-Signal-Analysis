@@ -1,0 +1,37 @@
+import numpy as np
+import datetime
+
+
+def getFile(name):
+    array = np.genfromtxt(name, skip_header=20, dtype=None, encoding=None)
+    return array
+
+
+def modify(array):
+    # replace ',' with '.' so the program interprets correctly
+    for i in range(0, len(array)):
+        array[i][0] = array[i][0].replace(',', '.')  # first column
+        array[i][1] = array[i][1].replace(',', '.')  # second column
+
+        # convert HH:MM:SS to seconds (adapted from https://stackoverflow.com/questions/6402812/how-to-convert-an-hmmss-time-string-to-seconds-in-python/6402934)
+        t = array[i][0]
+        h, m, s = t.split(':')
+        array[i][0] = (float(datetime.timedelta(hours=float(h), minutes=float(m), seconds=float(s)).total_seconds()))
+
+    # code to get rid of Sjoerd's unwanted second voltage column
+    if len(array[0])==3:
+        array = np.delete(array, 2, 1)
+
+    # convert strings in each column to floats
+    array = array.astype(float)
+
+    return array
+
+
+names=['Alessandro','Bart','Eliott','Gabriel','Inga','Julien','Juliette','Loreta','Sjoerd','Xavier']
+file_names=['Alessandro.txt','Bart.txt','Eliott.txt','Gabriel.txt','Inga.txt','Julien.txt','Juliette.txt','Loreta.txt','Sjoerd.txt','Xavier.txt']
+
+# Create the reformatted .txt files
+for j in range(0,len(names)):
+    print_array = modify(getFile(names[j]))
+    np.savetxt(file_names[j], print_array, fmt='%s')
